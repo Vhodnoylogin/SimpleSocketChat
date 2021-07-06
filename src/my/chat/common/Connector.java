@@ -16,18 +16,16 @@ public class Connector {
     }
 
     public void read() throws IOException {
-        System.out.println("IN READER");
         BufferedReader in = new BufferedReader(new InputStreamReader(this.in));
         System.out.println(in.readLine());
     }
 
     public void write() throws IOException {
-        System.out.println("IN WRITER");
         BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
         String word = consoleReader.readLine();
-        System.out.println("Type in console = " + word);
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(this.out));
         out.write(word);
+        out.newLine();
         out.flush();
     }
 

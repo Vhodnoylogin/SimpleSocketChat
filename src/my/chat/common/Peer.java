@@ -1,6 +1,5 @@
 package my.chat.common;
 
-import loop.Loop;
 import loop.help.Builder;
 
 import java.io.Closeable;
@@ -102,29 +101,29 @@ public abstract class Peer {
 
     public void beginListen(Connector connector) {
         Runnable stopRun = this::stop;
-        Loop read = Loop.builder()
-                .setTickRate(this.tickrate)
-                .setAction((delta, stop) -> {
-                    try {
-                        connector.read();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        stopRun.run();
-                    }
-                })
-                .build();
-        Loop write = Loop.builder()
-                .setTickRate(this.tickrate)
-                .setAction((delta, stop) -> {
-                    try {
-                        connector.write();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        stopRun.run();
-                    }
-                })
-                .build();
-//        this.threadPool.execute(read);
+        Runnable read = () -> {
+            while (true) {
+                try {
+                    connector.read();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    stopRun.run();
+                }
+            }
+        };
+        Runnable write = () -> {
+            while (true) {
+                try {
+                    connector.write();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    stopRun.run();
+                }
+            }
+        };
+//        System.out.println("start READ");
+        this.threadPool.execute(read);
+//        System.out.println("start WRITE");
         this.threadPool.execute(write);
     }
 

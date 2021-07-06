@@ -34,14 +34,21 @@ public class Client extends Peer {
         try {
             Socket socket = new Socket(this.host, this.clientPort);
             this.socket = socket;
-            this.peers.put(1
-                    , Connector.builder()
-                            .setInputStream(socket.getInputStream())
-                            .setOutputStream(socket.getOutputStream())
-                            .build()
-            );
+            Connector connector = Connector.builder()
+                    .setInputStream(socket.getInputStream())
+                    .setOutputStream(socket.getOutputStream())
+                    .build();
+            this.peers.put(1, connector);
             this.beginListen(peers.get(1));
-            System.out.println("CONNECT SUCCSESS");
+//            Runnable stopRun = this::stop;
+//            Runnable write = () ->{while(true){try {
+//                connector.write();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                stopRun.run();
+//            }}};
+//            this.threadPool.execute(write);
+            System.out.println("CONNECT SUCCESS");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,5 @@
 package my.chat.server;
 
-import loop.Loop;
 import my.chat.common.Connector;
 import my.chat.common.Peer;
 
@@ -38,25 +37,31 @@ public class Server extends Peer {
             ServerSocket socket = new ServerSocket(this.clientPort);
             this.socket = socket;
             Runnable stopRun = this::stop;
-            Loop connect = Loop.builder()
-                    .setTickRate(this.tickrate)
-                    .setAction(
-                            (delta, stop) -> {
-                                try {
-                                    System.out.println("IN SERVER LISTEN FOR CLIENT");
-                                    Socket client = socket.accept();
-                                    Connector connector = Connector.builder()
-                                            .setInputStream(client.getInputStream())
-                                            .setOutputStream(client.getOutputStream())
-                                            .build();
-                                    peers.put(id.getAndIncrement(), connector);
-                                    this.beginListen(connector);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    stopRun.run();
-                                }
-                            })
-                    .build();
+            Runnable connect = () -> {
+                while (true) {
+                    try {
+                        System.out.println("IN SERVER LISTEN FOR CLIENT");
+                        Socket client = socket.accept();
+                        Connector connector = Connector.builder()
+                                .setInputStream(client.getInputStream())
+                                .setOutputStream(client.getOutputStream())
+                                .build();
+                        peers.put(id.getAndIncrement(), connector);
+                        this.beginListen(connector);
+//                    Runnable read = () ->{while(true){try {
+//                        connector.read();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                        stopRun.run();
+//                    }}};
+//                    this.threadPool.execute(read);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        stopRun.run();
+                    }
+                }
+            };
+            System.out.println("Start connect");
             this.threadPool.execute(connect);
         } catch (IOException e) {
             e.printStackTrace();
