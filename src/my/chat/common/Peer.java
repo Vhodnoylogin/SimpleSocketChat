@@ -124,8 +124,8 @@ public abstract class Peer {
                     }
                 })
                 .build();
+//        this.threadPool.execute(read);
         this.threadPool.execute(write);
-        this.threadPool.execute(read);
     }
 
     public abstract static class PeerBuilderAbstract<C extends Peer, B extends PeerBuilderAbstract<C, B>>

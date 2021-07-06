@@ -57,7 +57,6 @@ public class Server extends Peer {
                                 }
                             })
                     .build();
-
             this.threadPool.execute(connect);
         } catch (IOException e) {
             e.printStackTrace();

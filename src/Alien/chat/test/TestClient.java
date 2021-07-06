@@ -3,7 +3,7 @@ package Alien.chat.test;
 import java.io.*;
 import java.net.Socket;
 
-public class Client {
+public class TestClient {
 
     private static Socket clientSocket; //сокет для общения
     private static BufferedReader reader; // нам нужен ридер читающий с консоли, иначе как
