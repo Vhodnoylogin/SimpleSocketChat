@@ -1,6 +1,6 @@
 package my.chat.client;
 
-import my.chat.common.Connector;
+import my.chat.common.ConnectorOld;
 import my.chat.common.Peer;
 
 import java.io.IOException;
@@ -34,11 +34,11 @@ public class Client extends Peer {
         try {
             Socket socket = new Socket(this.host, this.clientPort);
             this.socket = socket;
-            Connector connector = Connector.builder()
+            ConnectorOld connectorOld = ConnectorOld.builder()
                     .setInputStream(socket.getInputStream())
                     .setOutputStream(socket.getOutputStream())
                     .build();
-            this.peers.put(1, connector);
+            this.peers.put(1, connectorOld);
             this.beginListen(peers.get(1));
 //            Runnable stopRun = this::stop;
 //            Runnable write = () ->{while(true){try {

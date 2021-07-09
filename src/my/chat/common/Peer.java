@@ -14,7 +14,7 @@ public abstract class Peer {
 //    protected Socket client;
 //    protected ServerSocket server;
 
-    protected Map<Integer, Connector> peers = new HashMap<>();
+    protected Map<Integer, ConnectorOld> peers = new HashMap<>();
 
     protected InetAddress host;
     protected int clientPort;
@@ -99,12 +99,12 @@ public abstract class Peer {
 //        }
 //    }
 
-    public void beginListen(Connector connector) {
+    public void beginListen(ConnectorOld connectorOld) {
         Runnable stopRun = this::stop;
         Runnable read = () -> {
             while (true) {
                 try {
-                    connector.read();
+                    connectorOld.read();
                 } catch (IOException e) {
                     e.printStackTrace();
                     stopRun.run();
@@ -114,7 +114,7 @@ public abstract class Peer {
         Runnable write = () -> {
             while (true) {
                 try {
-                    connector.write();
+                    connectorOld.write();
                 } catch (IOException e) {
                     e.printStackTrace();
                     stopRun.run();

@@ -1,6 +1,6 @@
 package my.chat.server;
 
-import my.chat.common.Connector;
+import my.chat.common.ConnectorOld;
 import my.chat.common.Peer;
 
 import java.io.IOException;
@@ -42,12 +42,12 @@ public class Server extends Peer {
                     try {
                         System.out.println("IN SERVER LISTEN FOR CLIENT");
                         Socket client = socket.accept();
-                        Connector connector = Connector.builder()
+                        ConnectorOld connectorOld = ConnectorOld.builder()
                                 .setInputStream(client.getInputStream())
                                 .setOutputStream(client.getOutputStream())
                                 .build();
-                        peers.put(id.getAndIncrement(), connector);
-                        this.beginListen(connector);
+                        peers.put(id.getAndIncrement(), connectorOld);
+                        this.beginListen(connectorOld);
 //                    Runnable read = () ->{while(true){try {
 //                        connector.read();
 //                    } catch (IOException e) {
