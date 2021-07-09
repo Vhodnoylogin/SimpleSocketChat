@@ -1,27 +1,32 @@
 package my.chat.common;
 
 import loop.help.Builder;
+import my.chat.common.message.Message;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public abstract class Peer {
 //    protected Socket client;
 //    protected ServerSocket server;
 
-    protected Map<Integer, ConnectorOld> peers = new HashMap<>();
+    protected Map<Integer, Connector> peers = new HashMap<>();
 
     protected InetAddress host;
     protected int clientPort;
+    protected int serverPort;
 
-    protected int tickrate = 30;
-    protected ExecutorService threadPool = Executors.newFixedThreadPool(5);
+    //    protected int tickrate = 30;
+//    protected ExecutorService threadPool = Executors.newFixedThreadPool(5);
     protected Closeable socket;
+
+    protected abstract <T extends Message> void sendMessage(T msg);
+
+    protected abstract <T extends Message> void receiveMessage(T msg);
 
 //    public void startClient(){
 //        try(Socket client = new Socket(host, clientPort)){
@@ -66,7 +71,7 @@ public abstract class Peer {
 //    }
 
     public void stop() {
-        threadPool.shutdown();
+//        threadPool.shutdown();
         try {
             socket.close();
         } catch (IOException e) {
@@ -74,7 +79,23 @@ public abstract class Peer {
         }
     }
 
-    public abstract void connect();
+    public void start() {
+        Runnable connect = this::connect;
+        Runnable run = () -> {
+        };
+    }
+
+    public void work()
+
+    protected abstract Socket makeConnect();
+
+    public void connect() {
+        try (Socket socket = makeConnect()) {
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 //    public abstract void run();
 
 //    public void startServer(){
@@ -99,53 +120,60 @@ public abstract class Peer {
 //        }
 //    }
 
-    public void beginListen(ConnectorOld connectorOld) {
-        Runnable stopRun = this::stop;
-        Runnable read = () -> {
-            while (true) {
-                try {
-                    connectorOld.read();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    stopRun.run();
-                }
-            }
-        };
-        Runnable write = () -> {
-            while (true) {
-                try {
-                    connectorOld.write();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    stopRun.run();
-                }
-            }
-        };
-//        System.out.println("start READ");
-        this.threadPool.execute(read);
-//        System.out.println("start WRITE");
-        this.threadPool.execute(write);
-    }
+//    public void beginListen(Connector connector) {
+//        Runnable stopRun = this::stop;
+//        Runnable read = () -> {
+//            while (true) {
+//                try {
+//                    connector.
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                    stopRun.run();
+//                }
+//            }
+//        };
+//        Runnable write = () -> {
+//            while (true) {
+//                try {
+//                    connectorOld.write();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                    stopRun.run();
+//                }
+//            }
+//        };
+////        System.out.println("start READ");
+//        this.threadPool.execute(read);
+////        System.out.println("start WRITE");
+//        this.threadPool.execute(write);
+//    }
 
     public abstract static class PeerBuilderAbstract<C extends Peer, B extends PeerBuilderAbstract<C, B>>
             extends Builder<C, B> {
         protected String host;
-        protected Integer port;
+        protected Integer portListen;
+        protected Integer portServer;
 
         public B setHost(String host) {
             this.host = host;
             return _this();
         }
 
-        public B setPort(Integer port) {
-            this.port = port;
+        public B setPortListen(Integer port) {
+            this.portListen = port;
+            return _this();
+        }
+
+        public B setPortActive(Integer port) {
+            this.portServer = port;
             return _this();
         }
 
         @Override
         public C build() throws Exception {
             C instance = super.build();
-            instance.clientPort = port;
+            instance.clientPort = portListen;
+            instance.serverPort = portServer;
             instance.host = InetAddress.getByName(host);
             return instance;
         }

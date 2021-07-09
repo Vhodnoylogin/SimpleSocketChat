@@ -1,6 +1,6 @@
 package my.chat.run;
 
-import my.chat.server.Server;
+import my.chat.implement.server.Server;
 
 public class RunServer {
     public static void main(String[] args) {
