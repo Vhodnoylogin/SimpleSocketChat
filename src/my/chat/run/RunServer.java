@@ -6,8 +6,9 @@ public class RunServer {
     public static void main(String[] args) {
         Server.builder()
                 .setHost("localhost")
-                .setPort(1488)
+                .setPortActive(1488)
+                .setPortListen(1488)
                 .build()
-                .connect();
+                .start();
     }
 }

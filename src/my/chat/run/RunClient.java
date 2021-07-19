@@ -6,8 +6,9 @@ public class RunClient {
     public static void main(String[] args) {
         Client.builder()
                 .setHost("localhost")
-                .setPort(1488)
+                .setPortActive(1488)
+                .setPortListen(1488)
                 .build()
-                .connect();
+                .start();
     }
 }

@@ -1,37 +1,69 @@
 package my.chat.common;
 
 import loop.help.Builder;
+import my.chat.common.message.MessageContainer;
+import my.chat.implement.message.TextMessageContainer;
 import my.chat.implement.threads.MessageReader;
 import my.chat.implement.threads.MessageWriter;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
+import java.util.concurrent.BlockingQueue;
 
 public class Connector {
     //    protected Peer owner;
     protected MessageReader read;
     protected MessageWriter write;
     protected Socket socketClient;
-    //    protected Socket socketServer;
-    protected ExecutorService threadPool = Executors.newFixedThreadPool(5);
+    //        protected Socket socketServer;
+//    protected Integer numberOfThreads = 5;
+//    protected ExecutorService threadPool = Executors.newFixedThreadPool(numberOfThreads);
+    protected BlockingQueue<TextMessageContainer> queueRead;
+    protected BlockingQueue<TextMessageContainer> queueWrite;
 
     public static ConnectorBuilder builder() {
         return new ConnectorBuilder();
     }
 
-    public MessageReader getRead() {
-        return read;
+//    public MessageReader getRead() {
+//        return read;
+//    }
+//
+//    public MessageWriter getWrite() {
+//        return write;
+//    }
+
+//    public void connect() {
+//
+//    }
+
+    public void read() {
+        while (true) {
+            try {
+                this.queueRead.add(this.read.read());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public MessageWriter getWrite() {
-        return write;
+    public void write() {
+        while (true) {
+            try {
+                this.write.write(this.queueWrite.take());
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public void connect() {
-        this.write.run();
+
+    public BlockingQueue<? extends MessageContainer> getQueueRead() {
+        return queueRead;
+    }
+
+    public BlockingQueue<? extends MessageContainer> getQueueWrite() {
+        return queueWrite;
     }
 
     public void disconnect() throws IOException {
@@ -45,18 +77,18 @@ public class Connector {
         protected Socket socketRead;
         protected Socket socketWrite;
 
-        protected Consumer<MessageReader> read;
-        protected Consumer<MessageWriter> write;
+//        protected Consumer<MessageReader> read;
+//        protected Consumer<MessageWriter> write;
 
-        public B setRead(Consumer<MessageReader> read) {
-            this.read = read;
-            return _this();
-        }
-
-        public B setWrite(Consumer<MessageWriter> write) {
-            this.write = write;
-            return _this();
-        }
+//        public B setRead(Consumer<MessageReader> read) {
+//            this.read = read;
+//            return _this();
+//        }
+//
+//        public B setWrite(Consumer<MessageWriter> write) {
+//            this.write = write;
+//            return _this();
+//        }
 
         public B setSocketRead(Socket read) {
             this.socketRead = read;
@@ -86,12 +118,12 @@ public class Connector {
             instance.write = MessageWriter.builder()
                     .setInputStream(this.socketWrite.getInputStream())
                     .setOutputStream(this.socketWrite.getOutputStream())
-                    .setAction(this.write)
+//                    .setAction(this.write)
                     .build();
             instance.read = MessageReader.builder()
                     .setInputStream(this.socketRead.getInputStream())
                     .setOutputStream(this.socketRead.getOutputStream())
-                    .setAction(this.read)
+//                    .setAction(this.read)
                     .build();
             return instance;
         }

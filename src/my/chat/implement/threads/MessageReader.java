@@ -1,28 +1,28 @@
 package my.chat.implement.threads;
 
 import my.chat.common.threads.ReadThread;
-import my.chat.implement.message.TextMessage;
+import my.chat.implement.message.TextMessageContainer;
 
 import java.io.IOException;
 
-public class MessageReader extends ReadThread<TextMessage> {
+public class MessageReader extends ReadThread<TextMessageContainer> {
     public static MessageReaderBuilder builder() {
         return new MessageReaderBuilder();
     }
 
     @Override
-    protected TextMessage read() throws IOException {
+    public TextMessageContainer read() throws IOException {
         try {
-            return TextMessage.deserialize(this.in, TextMessage.class);
+            return TextMessageContainer.deserialize(this.in, TextMessageContainer.class);
         } catch (ClassNotFoundException e) {
-            TextMessage msg = new TextMessage();
+            TextMessageContainer msg = new TextMessageContainer();
             msg.setMsg(e.getMessage());
             return msg;
         }
     }
 
     public static abstract class MessageReaderBuilderAbstract<C extends MessageReader, B extends MessageReaderBuilderAbstract<C, B>>
-            extends ReadThreadBuilderAbstract<C, B, TextMessage> {
+            extends ReadThreadBuilderAbstract<C, B, TextMessageContainer> {
 
     }
 

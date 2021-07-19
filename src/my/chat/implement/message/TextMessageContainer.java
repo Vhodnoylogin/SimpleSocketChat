@@ -1,8 +1,8 @@
 package my.chat.implement.message;
 
-import my.chat.common.message.Message;
+import my.chat.common.message.MessageContainer;
 
-public class TextMessage extends Message {
+public class TextMessageContainer extends MessageContainer {
     protected String msg;
 
     public String getMsg() {

@@ -1,6 +1,13 @@
 package my.chat.implement.client;
 
+import my.chat.common.Connector;
 import my.chat.common.Peer;
+import my.chat.common.identifier.Id;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class Client extends Peer {
 //    protected Socket socket;
@@ -15,8 +22,32 @@ public class Client extends Peer {
 //        }
 //    }
 
+    {
+        try {
+            this.host = InetAddress.getByName("localhost");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static ClientBuilder builder() {
         return new ClientBuilder();
+    }
+
+    @Override
+    protected void connect() {
+        try (Socket socket = new Socket(this.host, this.clientPort)) {
+            Id id = new Id();
+            id.setName(socket.getInetAddress().getHostAddress() + " " + 1);
+            Connector connector = Connector.builder()
+                    .setSocketRead(socket)
+                    .setSocketWrite(socket)
+                    .build();
+            this.peers.put(id, connector);
+            this.run(connector);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 //    @Override

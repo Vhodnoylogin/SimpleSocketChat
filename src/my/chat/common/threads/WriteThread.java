@@ -1,17 +1,17 @@
 package my.chat.common.threads;
 
-import my.chat.common.message.Message;
+import my.chat.common.message.MessageContainer;
 
 import java.io.IOException;
 
-public abstract class WriteThread<T extends Message> extends ReadWriteThread<T> {
+public abstract class WriteThread<T extends MessageContainer> extends ReadWriteThread<T> {
 
     public abstract void write(T obj) throws IOException;
 
     public static abstract class WriteThreadBuilderAbstract<
             C extends WriteThread<T>
             , B extends WriteThreadBuilderAbstract<C, B, T>
-            , T extends Message
+            , T extends MessageContainer
             >
             extends ReedWriteThreadBuilderAbstract<C, B, T> {
 

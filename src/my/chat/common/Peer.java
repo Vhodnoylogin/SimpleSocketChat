@@ -1,32 +1,41 @@
 package my.chat.common;
 
 import loop.help.Builder;
-import my.chat.common.message.Message;
+import my.chat.common.identifier.Id;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.util.HashMap;
+import java.net.ServerSocket;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class Peer {
-//    protected Socket client;
-//    protected ServerSocket server;
+    //    protected Socket client;
+    protected ServerSocket server;
 
-    protected Map<Integer, Connector> peers = new HashMap<>();
+    protected Map<Id, Connector> peers = new ConcurrentHashMap<>();
 
     protected InetAddress host;
     protected int clientPort;
     protected int serverPort;
 
+//    protected BlockingQueue<? extends MessageContainer> queueRead;
+//    protected BlockingQueue<? extends MessageContainer> queueWrite;
+
+    protected Runnable empty = () -> {
+    };
+
     //    protected int tickrate = 30;
-//    protected ExecutorService threadPool = Executors.newFixedThreadPool(5);
-    protected Closeable socket;
+    protected Integer numberOfPeers = 5;
+    protected Integer numberOfThreads = numberOfPeers * 2 + 1;
+    protected ExecutorService threadPool = Executors.newFixedThreadPool(numberOfThreads);
+//    protected Closeable socket;
 
-    protected abstract <T extends Message> void sendMessage(T msg);
-
-    protected abstract <T extends Message> void receiveMessage(T msg);
+//    protected abstract <T extends MessageContainer> void sendMessage(T msg);
+//    protected abstract <T extends MessageContainer> T receiveMessage();
 
 //    public void startClient(){
 //        try(Socket client = new Socket(host, clientPort)){
@@ -71,31 +80,48 @@ public abstract class Peer {
 //    }
 
     public void stop() {
-//        threadPool.shutdown();
-        try {
-            socket.close();
+        threadPool.shutdown();
+        try (Closeable ignored = this.server) {
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void start() {
-        Runnable connect = this::connect;
-        Runnable run = () -> {
-        };
+        this.threadPool.execute(this::connect);
     }
 
-    public void work()
+//    public void work(){
+//
+//    }
 
-    protected abstract Socket makeConnect();
+    protected abstract void connect();
 
-    public void connect() {
-        try (Socket socket = makeConnect()) {
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    protected void run(Connector connector) {
+        Runnable read = connector::read;
+        Runnable write = connector::write;
+        this.threadPool.execute(read);
+        this.threadPool.execute(write);
     }
+
+//    protected abstract Socket makeConnect() throws IOException;
+
+//    public void connect() {
+//        while(true) {
+//            try (Socket socket = makeConnect()) {
+//                Id id = new Id();
+//                id.setName(socket.getInetAddress().getHostName() + " " + new Random().nextInt(10));
+//                Connector connector = Connector.builder()
+//                        .setSocketRead(socket)
+//                        .setSocketWrite(socket)
+////                                .setWrite((x) -> x.read())
+//                        .build();
+//                this.peers.put(id, connector);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 //    public abstract void run();
 
 //    public void startServer(){
